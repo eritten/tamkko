@@ -1,0 +1,58 @@
+services:
+  api:
+    build:
+      context: ./tamkko
+      dockerfile: Dockerfile
+    container_name: tamkko_api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./tamkko/.env
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - tamkko_network
+
+  mongo:
+    image: mongo:7
+    container_name: tamkko_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - tamkko_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: tamkko_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - tamkko_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: tamkko_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - api
+    networks:
+      - tamkko_network
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  tamkko_network:
+    driver: bridge
