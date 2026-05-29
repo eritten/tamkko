@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { register, login, refreshToken, getMe } from '@controllers/auth.controller';
+import { register, login, refreshToken, getMe, verifyEmail, resendOtp } from '@controllers/auth.controller';
 import { validate } from '@middleware/validate';
-import { registerSchema, loginSchema, refreshSchema } from '@validators/auth.validator';
+import { registerSchema, loginSchema, refreshSchema, verifyEmailSchema, resendOtpSchema } from '@validators/auth.validator';
 import { auth } from '@middleware/auth';
 
 const router = Router();
@@ -21,6 +21,8 @@ router.post('/login/email', validate(loginSchema), login);
 router.post('/login/phone', validate(loginSchema), login);
 router.post('/refresh', validate(refreshSchema), refreshToken);
 router.post('/token/refresh', validate(refreshSchema), refreshToken);
+router.post('/verify-email', validate(verifyEmailSchema), verifyEmail);
+router.post('/resend-otp', validate(resendOtpSchema), resendOtp);
 router.get('/me', auth(), getMe);
 
 export { router as authRoutes };

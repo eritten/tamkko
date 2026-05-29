@@ -34,3 +34,16 @@ export const refreshSchema = z.object({
     message: 'refresh token is required',
   }),
 });
+
+export const verifyEmailSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    otp: z.string().length(6),
+  }),
+});
+
+export const resendOtpSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+  }),
+});

@@ -7,8 +7,19 @@ import { ApiError } from '@utils/apiError';
 import { catchAsync } from '@utils/catchAsync';
 
 export const register = catchAsync(async (req, res: Response) => {
-  const { user, tokens } = await authService.register(req.body);
-  res.status(201).json({ status: 'success', data: { user, tokens } });
+  const result = await authService.register(req.body);
+  res.status(201).json({ status: 'success', data: result });
+});
+
+export const verifyEmail = catchAsync(async (req, res: Response) => {
+  const { email, otp } = req.body;
+  const { user, tokens } = await authService.verifyEmail(email, otp);
+  res.json({ status: 'success', data: { user, tokens } });
+});
+
+export const resendOtp = catchAsync(async (req, res: Response) => {
+  const result = await authService.resendOtp(req.body.email);
+  res.json({ status: 'success', data: result });
 });
 
 export const login = catchAsync(async (req, res: Response) => {

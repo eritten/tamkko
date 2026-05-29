@@ -1,7 +1,7 @@
 import africastalking from 'africastalking';
 import { Queue, Worker, Job } from 'bullmq';
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
-import sendgrid from '@sendgrid/mail';
+import { Resend } from 'resend';
 import redis from '@config/redis';
 import { env } from '@config/env';
 import { User } from '@models/User';
@@ -19,10 +19,7 @@ export const notificationQueue = new Queue<NotificationJobData>('notifications',
 });
 
 const expo = new Expo(env.EXPO_ACCESS_TOKEN ? { accessToken: env.EXPO_ACCESS_TOKEN } : undefined);
-
-if (env.SENDGRID_API_KEY) {
-  sendgrid.setApiKey(env.SENDGRID_API_KEY);
-}
+const resend = new Resend(env.SENDGRID_API_KEY);
 
 const getSmsClient = () => {
   if (!env.AFRICAS_TALKING_API_KEY || !env.AFRICAS_TALKING_USERNAME) return null;
@@ -51,16 +48,14 @@ const sendPushNotification = async (job: Job<NotificationJobData>) => {
 };
 
 const sendEmailNotification = async (job: Job<NotificationJobData>) => {
-  if (!env.SENDGRID_API_KEY) return;
-
   const user = await User.findById(job.data.userId);
   if (!user?.email) return;
 
-  await sendgrid.send({
+  await resend.emails.send({
+    from: 'onboarding@resend.dev',
     to: user.email,
-    from: env.FROM_EMAIL,
     subject: job.data.title,
-    text: job.data.body,
+    html: `<p>${job.data.body}</p>`,
   });
 };
 

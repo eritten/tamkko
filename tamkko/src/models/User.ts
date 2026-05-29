@@ -43,6 +43,9 @@ export interface IUser extends Document {
     totalTipsReceived: number;
     totalViews: number;
   };
+  isEmailVerified: boolean;
+  emailOtp?: string;
+  emailOtpExpiresAt?: Date;
   isDeleted: boolean;
   expoPushToken?: string;
   lastLoginAt?: Date;
@@ -96,6 +99,9 @@ const UserSchema = new mongoose.Schema<IUser>(
       totalTipsReceived: { type: Number, default: 0 },
       totalViews: { type: Number, default: 0 },
     },
+    isEmailVerified: { type: Boolean, default: false },
+    emailOtp: { type: String, select: false },
+    emailOtpExpiresAt: { type: Date },
     isDeleted: { type: Boolean, default: false },
     expoPushToken: { type: String },
     lastLoginAt: { type: Date },
