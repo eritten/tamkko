@@ -10,7 +10,21 @@ interface AuthTokens {
   access: string;
   refresh: string;
   expires_in: number;
+  refresh_expires_in: number;
 }
+
+const parseDurationToSeconds = (duration: string): number => {
+  const match = duration.match(/^(\d+)([smhd])$/);
+  if (!match) return 900;
+  const value = parseInt(match[1], 10);
+  switch (match[2]) {
+    case 's': return value;
+    case 'm': return value * 60;
+    case 'h': return value * 3600;
+    case 'd': return value * 86400;
+    default: return 900;
+  }
+};
 
 const resend = new Resend(env.SENDGRID_API_KEY);
 
@@ -168,7 +182,8 @@ export class AuthService {
     return {
       access: jwt.sign(payload, env.jwtSecret, accessOptions),
       refresh: jwt.sign({ userId: user._id.toString() }, env.jwtRefreshSecret, refreshOptions),
-      expires_in: 3600,
+      expires_in: parseDurationToSeconds(env.jwtAccessExpiration),
+      refresh_expires_in: parseDurationToSeconds(env.jwtRefreshExpiration),
     };
   }
 }
